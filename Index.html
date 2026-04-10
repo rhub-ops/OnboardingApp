@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Onboarding App</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--bg2:#f8f9fa;--bg3:#f0f4f8;--txt:#1a1a2e;--txt2:#6b7280;--b1:#e5e7eb;--b2:#d1d5db;--blue:#185FA5;--blue-l:#E6F1FB;--blue-d:#0C447C;--blue-m:#378ADD;--green:#27500A;--green-l:#EAF3DE;--amber:#633806;--amber-l:#FAEEDA;--purple:#3C3489;--purple-l:#EEEDFE;--red:#791F1F;--red-l:#FCEBEB;--teal:#085041;--teal-l:#E1F5EE;--sys:#534AB7;--sys-l:#EEEDFE;--r:8px;--rl:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px;color:var(--txt);background:var(--bg3);min-height:100vh}
+.hdr{background:var(--blue-d);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-box{width:16px;height:16px;border-radius:50%;background:#5DCAA5;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.brand-box-name{font-size:10px;font-weight:700;color:#B5D4F4;letter-spacing:.3px;line-height:1.3;text-align:center}
+.brand-box-dot{width:5px;height:5px;border-radius:50%;background:#5DCAA5;margin-top:4px}
+.brand-name{font-size:22px;font-weight:700;color:#fff;letter-spacing:.5px}
+.brand-sub{font-size:10px;color:#85B7EB;margin-top:2px}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.hdr-meta{font-size:11px;color:#85B7EB;text-align:right;line-height:1.7}
+.hdr-meta strong{display:block;color:#B5D4F4}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#5DCAA5;display:inline-block;margin-right:5px}
+.hbtn{padding:5px 12px;font-size:11px;border-radius:var(--r);border:1px solid var(--blue-m);background:transparent;color:#B5D4F4;cursor:pointer;font-family:inherit}
+.hbtn:hover{background:#142338}
+.hbtn.d{border-color:#F09595;color:#F09595}
+.setup{max-width:560px;margin:3rem auto;background:var(--bg);border-radius:var(--rl);border:1px solid var(--b1);padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.setup-brand{display:flex;align-items:center;gap:14px;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--b1)}
+.setup-logo{background:var(--blue-d);border-radius:var(--r);padding:10px 14px;display:flex;flex-direction:column;align-items:center}
+.setup-app-name{font-size:18px;font-weight:700;color:var(--blue-d);letter-spacing:.5px}
+.setup-app-sub{font-size:11px;color:var(--txt2);margin-top:3px}
+.setup-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.setup-sub{font-size:13px;color:var(--txt2);margin-bottom:1.25rem;line-height:1.6}
+.srow{display:flex;gap:8px;margin-bottom:10px}
+.sinput{flex:1;padding:9px 12px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg);color:var(--txt);font-size:13px;font-family:inherit;outline:none}
+.sinput:focus{border-color:var(--blue)}
+.sbtn{padding:9px 20px;border-radius:var(--r);border:none;background:var(--blue);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.sbtn:hover{background:var(--blue-d)}
+.snote{font-size:12px;color:var(--txt2);background:var(--blue-l);border-radius:var(--r);padding:10px 12px;border-left:3px solid var(--blue);line-height:1.6;margin-bottom:10px}
+
+
+.app{display:none;flex-direction:column;min-height:100vh}
+.app.on{display:flex}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1.5rem;border-bottom:1px solid var(--b1);background:var(--bg);position:sticky;top:0;z-index:10}
+.topbar-title{font-size:15px;font-weight:600}
+.tabs{display:flex;gap:4px}
+.tab{padding:5px 14px;border-radius:var(--r);border:1px solid transparent;font-size:13px;cursor:pointer;background:transparent;color:var(--txt2);font-family:inherit}
+.tab.on{background:var(--blue-l);border-color:#B5D4F4;color:var(--blue-d);font-weight:600}
+.tab:hover:not(.on){background:var(--bg2)}
+.toolbar{display:flex;align-items:center;gap:8px;padding:.65rem 1.5rem;border-bottom:1px solid var(--b1);flex-wrap:wrap;background:var(--bg)}
+.sw{flex:1;min-width:160px;position:relative}
+.sw input{width:100%;padding:7px 12px 7px 32px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg);color:var(--txt);font-size:13px;font-family:inherit;outline:none}
+.sw input:focus{border-color:var(--blue)}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.4;font-size:14px;pointer-events:none}
+.btn{padding:7px 14px;border-radius:var(--r);border:1px solid var(--b2);font-size:13px;cursor:pointer;background:var(--bg);color:var(--txt);font-weight:500;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--bg2)}
+.btn-add{background:var(--blue);border-color:var(--blue);color:#fff}.btn-add:hover{background:var(--blue-d)}
+.btn-xl{background:#27500A;border-color:#27500A;color:#fff}.btn-xl:hover{background:#173404}
+.btn-ref{border-color:var(--blue);color:var(--blue)}.btn-ref:hover{background:var(--blue-l)}
+.btn-del{border-color:#A32D2D;color:#A32D2D;background:transparent}.btn-del:hover{background:var(--red-l)}
+.btn-seed{border-color:#27500A;color:#27500A;background:transparent}.btn-seed:hover{background:var(--green-l)}
+.fbar{display:flex;gap:6px;padding:7px 1.5rem;border-bottom:1px solid var(--b1);background:var(--bg2);flex-wrap:wrap;align-items:center}
+.flbl{font-size:11px;color:var(--txt2);font-weight:600;white-space:nowrap}
+.fsel{padding:4px 8px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg);color:var(--txt);font-size:12px;font-family:inherit;max-width:130px;cursor:pointer}
+.fsel.on{border-color:var(--blue);background:var(--blue-l);color:var(--blue-d);font-weight:600}
+.fclr{padding:4px 10px;border-radius:var(--r);border:1px solid var(--b2);font-size:12px;cursor:pointer;background:transparent;color:var(--txt2);font-family:inherit;white-space:nowrap}
+.fclr:hover{background:var(--red-l);color:#A32D2D;border-color:#A32D2D}
+.content{padding:1.25rem 1.5rem;flex:1}
+.sbar{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:1.25rem}
+.sc{background:var(--bg);border-radius:var(--r);padding:.7rem 1rem;border:1px solid var(--b1);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.sc-l{font-size:10px;color:var(--txt2);margin-bottom:3px;font-weight:500}
+.sc-v{font-size:22px;font-weight:700}
+.rc{font-size:12px;color:var(--txt2);margin-bottom:8px}
+.err{background:var(--red-l);color:var(--red);padding:8px 14px;font-size:12px;border-radius:var(--r);margin-bottom:1rem;display:none;border:1px solid #F7C1C1}
+.empty{text-align:center;padding:3rem;color:var(--txt2);font-size:13px}
+
+.tw{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--b1);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed;background:var(--bg)}
+th{text-align:left;padding:9px 7px;border-bottom:2px solid var(--b2);font-weight:600;color:var(--blue-d);font-size:10px;white-space:nowrap;background:var(--blue-l)}
+td{padding:8px 7px;border-bottom:1px solid var(--b1);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f0f7ff}
+.kb{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:600;background:var(--purple-l);color:var(--purple);font-family:monospace}
+.mb{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;background:var(--blue-l);color:var(--blue-d)}
+.sysd-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;background:var(--sys-l);color:var(--sys)}
+.sb{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.s0{background:var(--red-l);color:var(--red)}.s1{background:var(--amber-l);color:var(--amber)}
+.s2{background:var(--green-l);color:var(--green)}.s3{background:var(--purple-l);color:var(--purple)}
+.s4{background:var(--blue-l);color:var(--blue-d)}.s5{background:var(--teal-l);color:var(--teal)}
+.ab{display:flex;gap:4px}
+.mbk{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-start;justify-content:center;padding-top:24px;overflow-y:auto}
+.mbk.on{display:flex}
+.modal{background:#1e2d42;border-radius:var(--rl);border:1px solid #2e4060;width:min(720px,96vw);max-height:90vh;overflow:hidden;display:flex;flex-direction:column;margin:auto}
+.mhdr{background:var(--blue-d);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mhdr-t{font-size:15px;font-weight:600;color:#fff}
+.mc{background:transparent;border:none;color:#B5D4F4;font-size:20px;cursor:pointer;line-height:1;padding:0 4px}
+.mc:hover{color:#fff}
+.mbdy{padding:1.5rem;overflow-y:auto;flex:1}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fi{display:flex;flex-direction:column;gap:4px}
+.fi.f{grid-column:1/-1}
+.fl{font-size:11px;color:#85B7EB;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.fin{padding:8px 11px;border:1px solid #2e4060;border-radius:var(--r);background:#142338;color:#ddeeff;font-size:13px;font-family:inherit;width:100%;outline:none}
+.fin:focus{border-color:#378ADD;background:#1a2e45}
+.fin::placeholder{color:#4a6a88}
+textarea.fin{resize:vertical;min-height:60px;line-height:1.5}
+.kpb{background:#0d1e30;border:1px solid #3C3489;border-radius:var(--r);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;grid-column:1/-1}
+.kv{font-family:monospace;font-size:14px;color:#AFA9EC;letter-spacing:.06em;font-weight:600}
+.sep{grid-column:1/-1;border:none;border-top:1px solid #2e4060;margin:3px 0}
+.slbl{grid-column:1/-1;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:6px 12px;border-radius:var(--r)}
+.li{color:#B5D4F4;background:#0d1e30;border-left:3px solid #378ADD}
+.ln{color:#B5D4F4;background:#0d1e30;border-left:3px solid #378ADD}
+.lk{color:#C0DD97;background:#0d1e30;border-left:3px solid #639922}
+.lt{color:#FAC775;background:#0d1e30;border-left:3px solid #BA7517}
+.la{color:#AFA9EC;background:#0d1e30;border-left:3px solid #7F77DD}
+.lc{color:#F09595;background:#0d1e30;border-left:3px solid #E24B4A}
+.ls2{color:#CEC BF6;background:#0d1e30;border-left:3px solid #7F77DD}
+.lsy{color:#CEC BF6;background:#0d1e30;border-left:3px solid #534AB7}
+.sh{font-size:11px;color:#4a6a88;line-height:1.5;display:flex;align-items:center}
+.mftr{background:#142338;padding:1rem 1.5rem;border-top:1px solid #2e4060;display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+.bc{padding:7px 16px;border-radius:var(--r);border:1px solid #2e4060;font-size:13px;cursor:pointer;background:transparent;color:#85B7EB;font-family:inherit}
+.bc:hover{background:#1a2e45}
+.bs{padding:7px 20px;border-radius:var(--r);border:none;font-size:13px;cursor:pointer;background:var(--blue);color:#fff;font-weight:600;font-family:inherit}
+.bs:hover{background:var(--blue-d)}
+.bs:disabled{background:#4a6a88;cursor:not-allowed}
+.sc2{background:var(--bg);border-radius:var(--rl);border:1px solid var(--b1);max-width:640px}
+.sc2-h{background:var(--blue-d);color:#fff;padding:1rem 1.5rem;border-radius:var(--rl) var(--rl) 0 0;font-size:15px;font-weight:600}
+.sc2-b{padding:1.5rem}
+.ss{margin-bottom:1.5rem}
+.ss-t{font-size:13px;font-weight:600;color:var(--blue-d);margin-bottom:.65rem;padding-bottom:6px;border-bottom:1px solid var(--b1)}
+.tl{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.tg{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:999px;background:var(--blue-l);border:1px solid #B5D4F4;color:var(--blue-d);font-size:12px;font-weight:500}
+.tx{background:transparent;border:none;color:var(--blue);cursor:pointer;font-size:14px;line-height:1;padding:0}
+.tx:hover{color:#A32D2D}
+.atr{display:flex;gap:6px}
+.ati{flex:1;padding:7px 11px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg);color:var(--txt);font-size:13px;font-family:inherit;outline:none}
+.ati:focus{border-color:var(--blue)}
+.atb{padding:7px 14px;border-radius:var(--r);border:1px solid var(--blue);background:transparent;color:var(--blue);font-size:12px;cursor:pointer;font-family:inherit;font-weight:500}
+.atb:hover{background:var(--blue-l)}
+.pc{background:var(--bg);border-radius:var(--rl);border:1px solid var(--b1);padding:1.5rem}
+.pctrl{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--b1)}
+.pctrl label{font-size:12px;color:var(--txt2);font-weight:600;display:block;margin-bottom:4px}
+.psel{padding:7px 10px;border:1px solid var(--b2);border-radius:var(--r);background:var(--bg);color:var(--txt);font-size:13px;font-family:inherit;cursor:pointer}
+.pg{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--b1)}
+.pfg{display:flex;flex-direction:column;gap:4px}
+.pri{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.prn{font-size:11px;color:var(--txt2);width:18px;text-align:right;flex-shrink:0;font-weight:600}
+.bi{padding:4px 9px;border-radius:var(--r);border:1px solid var(--b2);font-size:12px;cursor:pointer;background:transparent;color:var(--txt2);font-family:inherit}
+.bi.a{border-color:var(--blue);color:var(--blue)}.bi.a:hover{background:var(--blue-l)}
+.bi.r{border-color:#A32D2D;color:#A32D2D}.bi.r:hover{background:var(--red-l)}
+.ptw{overflow-x:auto;margin-top:1rem}
+.ptw table{font-size:12px;table-layout:auto;min-width:400px;border-radius:var(--r);overflow:hidden;border:1px solid var(--b1)}
+.ptw th{background:var(--blue-l);color:var(--blue-d);white-space:nowrap;padding:8px 12px;font-weight:600}
+.ptw td{padding:7px 12px;border-bottom:1px solid var(--b1)}
+.ptw tr:last-child td{border-bottom:none}
+.pt{font-weight:700}
+.sp{display:inline-block;width:14px;height:14px;border:2px solid var(--b2);border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+.sp2{border-color:#B5D4F4}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ls{text-align:center;padding:3rem;color:var(--txt2);font-size:13px}
+</style>
+</head>
+<body>
+
+<div id="setupScreen" style="padding:1rem">
+  <div class="setup">
+    <div class="setup-brand">
+      <div class="setup-logo">
+        <span style="font-size:16px;font-weight:700;color:#B5D4F4;letter-spacing:1px">OA</span>
+        <div style="width:5px;height:5px;border-radius:50%;background:#5DCAA5;margin-top:4px"></div>
+      </div>
+      <div>
+        <div class="setup-app-name">Onboarding App</div>
+        <div class="setup-app-sub">Onboarding, perfectly in sync &amp; Tracking</div>
+      </div>
+    </div>
+    <div class="setup-title">Connect to Google Sheets</div>
+    <div class="setup-sub">Paste your Google Apps Script Web App URL. All team members use the same URL to access shared live data.</div>
+    <div class="srow">
+      <input class="sinput" id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+      <button class="sbtn" onclick="connectSheet()">Connect</button>
+    </div>
+    <div id="setupErr" style="color:#A32D2D;font-size:12px;margin-bottom:10px;display:none"></div>
+    <div class="snote"><strong>How to get your URL:</strong> Google Sheet → Extensions → Apps Script → paste Code_v3.gs → Deploy → New Deployment → Web App (Execute as: Me, Access: Anyone) → copy URL.</div>
+    
+  </div>
+</div>
+
+<div id="mainApp" class="app">
+  <div class="hdr">
+    <div class="brand">
+      <div class="brand-box">
+        
+        
+      </div>
+      <div>
+        <div class="brand-name">Onboarding App</div>
+        <div class="brand-sub">Onboarding, perfectly in sync &amp; Tracking</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <div class="hdr-meta"><span class="live-dot"></span><strong id="connMode">Live — Google Sheets</strong><span id="hdrDate"></span></div>
+      <button class="hbtn d" onclick="disconnect()">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <span class="topbar-title">Client Applications</span>
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('applications')">Applications</button>
+      <button class="tab" onclick="switchTab('pivot')">Pivot Report</button>
+      <button class="tab" onclick="switchTab('settings')">Settings</button>
+    </div>
+  </div>
+
+  <div id="tab-applications">
+    <div class="toolbar">
+      <div class="sw"><span class="si">&#9906;</span><input type="text" id="searchInput" placeholder="Search by client, company or key..." oninput="render()"></div>
+      <button class="btn btn-ref" onclick="refreshData()">&#8635; Refresh</button>
+      
+      <button class="btn btn-xl" onclick="exportExcel()">&#8595; Download Excel</button>
+      <button class="btn btn-add" onclick="openModal()">+ Add Application</button>
+    </div>
+    <div class="fbar">
+      <span class="flbl">Filters:</span>
+      <select class="fsel" id="fil-appKey" onchange="render()"><option value="">All Keys</option></select>
+      <select class="fsel" id="fil-company" onchange="render()"><option value="">All Companies</option></select>
+      <select class="fsel" id="fil-country" onchange="render()"><option value="">All Countries</option></select>
+      <select class="fsel" id="fil-bizRel" onchange="render()"><option value="">All Relationships</option></select>
+      <select class="fsel" id="fil-category" onchange="render()"><option value="">All Categories</option></select>
+      <select class="fsel" id="fil-mode" onchange="render()"><option value="">All Modes</option></select>
+      <select class="fsel" id="fil-stage" onchange="render()"><option value="">All Stages</option><option>Not Started</option><option>NDA Signed</option><option>KYC Complete</option><option>Term Sheet</option><option>Agreement Signed</option><option>Compliance Done</option></select>
+      <select class="fsel" id="fil-filterStatus" onchange="render()"><option value="">All Filter Status</option></select>
+      <select class="fsel" id="fil-finalStatus" onchange="render()"><option value="">All Final Status</option></select>
+      <button class="fclr" onclick="clearFilters()">&#x2715; Clear All</button>
+    </div>
+    <div class="content">
+      <div class="err" id="errBanner"></div>
+      <div class="sbar" id="statsBar"></div>
+      <div class="rc" id="rc"></div>
+      <div id="tableWrap"><div class="ls"><span class="sp"></span>Loading...</div></div>
+    </div>
+  </div>
+
+  <div id="tab-pivot" style="display:none">
+    <div class="content">
+      <div class="pc">
+        <div class="pctrl">
+          <div>
+            <label>Row Groups (up to 4 levels)</label>
+            <div id="pivotRowsWrap"></div>
+            <button class="bi a" style="margin-top:8px" onclick="addPivotRow()">+ Add Row Level</button>
+          </div>
+          <div class="pg">
+            <div class="pfg"><label>Column (split by)</label>
+              <select class="psel" id="pivotCol" onchange="renderPivot()">
+                <option value="Final Status">Final Status</option>
+                <option value="Filter by Status">Filter by Status</option>
+                <option value="Pipeline Stage">Pipeline Stage</option>
+                <option value="Country">Country</option>
+                <option value="Business Relationship">Business Relationship</option>
+                <option value="Client Category">Client Category</option>
+                <option value="Mode">Mode</option>
+              </select>
+            </div>
+            <div class="pfg"><label>Filter — Final Status</label><select class="psel" id="pFF" onchange="renderPivot()"><option value="">All</option></select></div>
+            <div class="pfg"><label>Filter — Filter Status</label><select class="psel" id="pFB" onchange="renderPivot()"><option value="">All</option></select></div>
+            <div class="pfg"><label>Filter — Country</label><select class="psel" id="pFC" onchange="renderPivot()"><option value="">All Countries</option></select></div>
+            <div class="pfg"><label>Filter — Mode</label><select class="psel" id="pFM" onchange="renderPivot()"><option value="">All Modes</option></select></div>
+          </div>
+        </div>
+        <div class="ptw" id="pivotTableWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-settings" style="display:none">
+    <div class="content">
+      <div class="sc2">
+        <div class="sc2-h">Manage Dropdown Categories</div>
+        <div class="sc2-b">
+          <div id="set-saving" style="display:none;font-size:12px;color:var(--txt2);margin-bottom:1rem"><span class="sp"></span>Saving...</div>
+          <div class="ss"><div class="ss-t">Final Status</div><div class="tl" id="tags-finalStatus"></div><div class="atr"><input class="ati" id="new-finalStatus" placeholder="Add..."><button class="atb" onclick="addTag('finalStatus')">+ Add</button></div></div>
+          <div class="ss"><div class="ss-t">Filter by Status</div><div class="tl" id="tags-filterByStatus"></div><div class="atr"><input class="ati" id="new-filterByStatus" placeholder="Add..."><button class="atb" onclick="addTag('filterByStatus')">+ Add</button></div></div>
+          <div class="ss"><div class="ss-t">Client Category</div><div class="tl" id="tags-clientCategory"></div><div class="atr"><input class="ati" id="new-clientCategory" placeholder="Add..."><button class="atb" onclick="addTag('clientCategory')">+ Add</button></div></div>
+          <div class="ss"><div class="ss-t">Business Relationship</div><div class="tl" id="tags-businessRelationship"></div><div class="atr"><input class="ati" id="new-businessRelationship" placeholder="Add..."><button class="atb" onclick="addTag('businessRelationship')">+ Add</button></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mbk" id="appModal">
+  <div class="modal">
+    <div class="mhdr"><span class="mhdr-t" id="modalTitle">Add New Application</span><button class="mc" onclick="closeModal()">&#x2715;</button></div>
+    <div class="mbdy">
+      <div class="fg">
+        <div class="kpb">
+          <div><div class="fl" style="margin-bottom:5px">Application Key (auto-generated)</div><div class="kv" id="keyPreview">OB-2026-0001</div></div>
+          <div style="font-size:11px;color:#4a6a88;text-align:right">Unique ID · Read only</div>
+        </div>
+        <div class="slbl li">Client Information</div>
+        <div class="fi f"><span class="fl">Client Name *</span><input class="fin" type="text" id="f-clientName" placeholder="e.g. John Smith"></div>
+        <div class="fi f"><span class="fl">Company Name</span><input class="fin" type="text" id="f-companyName" placeholder="e.g. Acme Pvt. Ltd."></div>
+        <div class="fi"><span class="fl">Country</span><input class="fin" type="text" id="f-country" placeholder="e.g. India"></div>
+        <div class="fi"><span class="fl">Business Relationship</span><select class="fin" id="f-bizRel"></select></div>
+        <div class="fi"><span class="fl">Client Category</span><select class="fin" id="f-cat"></select></div>
+        <div class="fi"><span class="fl">Mode</span><select class="fin" id="f-mode"><option value="">Select...</option><option>API</option><option>Portal</option><option>SFTP</option></select></div>
+        <hr class="sep">
+        <div class="slbl ln">Step 1 — NDA</div>
+        <div class="fi"><span class="fl">NDA Signed Date</span><input class="fin" type="date" id="f-nda"></div>
+        <div class="fi sh">Date when NDA was formally signed by both parties</div>
+        <hr class="sep">
+        <div class="slbl lk">Step 2 — KYC</div>
+        <div class="fi"><span class="fl">KYC Completion Date</span><input class="fin" type="date" id="f-kyc"></div>
+        <div class="fi sh">Date KYC verification was completed</div>
+        <hr class="sep">
+        <div class="slbl lt">Step 3 — Term Sheet</div>
+        <div class="fi"><span class="fl">Term Sheet Execution Date</span><input class="fin" type="date" id="f-ts"></div>
+        <div class="fi sh">Date of term sheet execution</div>
+        <hr class="sep">
+        <div class="slbl la">Step 4 — Agreement</div>
+        <div class="fi"><span class="fl">Agreement Execution Date</span><input class="fin" type="date" id="f-agr"></div>
+        <div class="fi sh">Date of final agreement execution</div>
+        <hr class="sep">
+        <div class="slbl lc">Step 5 — Compliance</div>
+        <div class="fi"><span class="fl">Compliance Approval Date</span><input class="fin" type="date" id="f-com"></div>
+        <div class="fi sh">Date compliance sign-off was received</div>
+        <hr class="sep">
+        <div class="slbl" style="color:#CECBF6;background:#0d1e30;border-left:3px solid #534AB7;grid-column:1/-1;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:6px 12px;border-radius:var(--r)">System Demo</div>
+        <div class="fi"><span class="fl">System Demo Date</span><input class="fin" type="date" id="f-sysd"></div>
+        <div class="fi sh">Date when system demo was conducted with the client</div>
+        <hr class="sep">
+        <div class="slbl li">Status</div>
+        <div class="fi"><span class="fl">Filter by Status</span><select class="fin" id="f-fstat"></select></div>
+        <div class="fi"><span class="fl">Final Status</span><select class="fin" id="f-fnal"></select></div>
+        <div class="fi f"><span class="fl">Ops Team Remarks</span><textarea class="fin" id="f-rem" placeholder="Add any remarks or notes..."></textarea></div>
+      </div>
+    </div>
+    <div class="mftr"><button class="bc" onclick="closeModal()">Cancel</button><button class="bs" id="btnSave" onclick="saveRecord()">Save Application</button></div>
+  </div>
+</div>
+
+<script>
+const FIELDS=['Application Key','Client Name','Company Name','Country','Business Relationship','Client Category','Mode','NDA Signed Date','KYC Completion Date','Term Sheet Execution Date','Agreement Execution Date','Compliance Approval Date','System Demo Date','Filter by Status','Final Status','Ops Team Remarks'];
+const DATE_FIELDS=['NDA Signed Date','KYC Completion Date','Term Sheet Execution Date','Agreement Execution Date','Compliance Approval Date','System Demo Date'];
+const ALL_PF=['Application Key','Company Name','Country','Business Relationship','Client Category','Mode','Pipeline Stage','Filter by Status','Final Status'];
+const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+
+let API='',records=[],editRI=null;
+let pRows=['Country','Final Status'];
+let opts={finalStatus:['Active','Pending','Under Review','Closed','Rejected'],filterByStatus:['New','In Progress','On Hold','Completed','Cancelled'],clientCategory:['Corporate','HNI','Institutional','Retail','Government'],businessRelationship:['Direct Client','Referred','Partner','Agent','Other']};
+
+const tid=s=>document.getElementById(s);
+function d2i(raw){if(!raw)return'';const s=String(raw).trim();if(!s||s==='0')return'';if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;if(/^\d{2}\/\d{2}\/\d{4}$/.test(s)){const[d,m,y]=s.split('/');return`${y}-${m}-${d}`;}if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)){const p=s.split('/');return`${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;}if(/^\d{5,}$/.test(s)){const u=new Date(Date.UTC(1899,11,30)+parseInt(s)*86400000);return u.toISOString().slice(0,10);}const d=new Date(s);if(!isNaN(d))return d.toISOString().slice(0,10);return'';}
+function fd(raw){const iso=d2i(raw);if(!iso)return'—';const[y,m,d]=iso.split('-');return`${d}-${MO[parseInt(m)-1]}-${y}`;}
+function stage(r){if(r['Compliance Approval Date'])return{l:'Compliance Done',c:'s5'};if(r['Agreement Execution Date'])return{l:'Agreement Signed',c:'s4'};if(r['Term Sheet Execution Date'])return{l:'Term Sheet',c:'s3'};if(r['KYC Completion Date'])return{l:'KYC Complete',c:'s2'};if(r['NDA Signed Date'])return{l:'NDA Signed',c:'s1'};return{l:'Not Started',c:'s0'};}
+function genKey(){const yr=new Date().getFullYear();const nums=records.map(r=>{const k=r['Application Key']||'';const m=k.match(/OB-\d{4}-(\d+)/);return m?parseInt(m[1]):0;});return`OB-${yr}-${String((nums.length?Math.max(...nums):0)+1).padStart(4,'0')}`;}
+function goSetup(){tid('mainApp').classList.remove('on');tid('setupScreen').style.display='block';}
+
+function connectSheet(){
+  const url=(tid('apiUrlInput').value||'').trim();
+  if(!url.startsWith('https://script.google.com')){tid('setupErr').textContent='Please enter a valid Apps Script URL.';tid('setupErr').style.display='block';return;}
+  API=url;try{localStorage.setItem('oa_url',url);}catch(e){}
+  tid('setupScreen').style.display='none';tid('mainApp').classList.add('on');
+  tid('connMode').textContent='Live — Google Sheets';
+  tid('hdrDate').textContent=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  
+  loadOptions().then(()=>loadData());renderPivotRowControls();
+}
+function disconnect(){API='';records=[];try{localStorage.removeItem('oa_url');}catch(e){}tid('mainApp').classList.remove('on');tid('setupScreen').style.display='block';}
+async function api(params,body){
+  try{
+    if(body){
+      // POST request
+      const r=await fetch(API,{
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify(body),
+        redirect:'follow'
+      });
+      const t=await r.text();
+      try{return JSON.parse(t);}catch(e){throw new Error('Bad response: '+t.slice(0,100));}
+    } else {
+      // GET request
+      const url=API+'?'+new URLSearchParams(params);
+      const r=await fetch(url,{method:'GET',redirect:'follow'});
+      const t=await r.text();
+      try{return JSON.parse(t);}catch(e){throw new Error('Bad response: '+t.slice(0,100));}
+    }
+  }catch(err){
+    // Log full error for debugging
+    console.error('API Error:',err.message);
+    throw err;
+  }
+}
+async function loadOptions(){try{const d=await api({action:'getOptions'});if(d.options){opts={...opts,...d.options};syncDrops();renderTags();}}catch(e){}}
+async function loadData(){if(tid('tableWrap'))tid('tableWrap').innerHTML='<div class="ls"><span class="sp"></span>Loading from Google Sheets...</div>';showErr('');try{const d=await api({action:'getAll'});records=d.records||[];buildFilters();render();renderPivot();}catch(e){showErr('Could not connect: '+e.message);}}
+
+async function saveOpts(){tid('set-saving').style.display='block';try{await api(null,{action:'saveOptions',options:opts});}catch(e){}tid('set-saving').style.display='none';}
+function showErr(msg){const el=tid('errBanner');el.textContent=msg;el.style.display=msg?'block':'none';}
+function refreshData(){loadData();}
+
+function syncDrops(){pfSel('f-fnal',opts.finalStatus);pfSel('f-fstat',opts.filterByStatus);pfSel('f-cat',opts.clientCategory);pfSel('f-bizRel',opts.businessRelationship);pSel('pFF',opts.finalStatus,'All Final Status');pSel('pFB',opts.filterByStatus,'All Filter Status');}
+function pSel(id,items,lbl){const el=tid(id);if(!el)return;const c=el.value;el.innerHTML=`<option value="">${lbl}</option>`+items.map(i=>`<option>${i}</option>`).join('');if(c)el.value=c;}
+function pfSel(id,items){const el=tid(id);if(!el)return;const c=el.value;el.innerHTML='<option value="">Select...</option>'+items.map(i=>`<option>${i}</option>`).join('');if(c)el.value=c;}
+function renderTags(){['finalStatus','filterByStatus','clientCategory','businessRelationship'].forEach(k=>{const el=tid('tags-'+k);if(!el)return;el.innerHTML=opts[k].map(v=>`<span class="tg">${v}<button class="tx" onclick="removeTag('${k}','${v.replace(/'/g,"\\'")}')">&#x2715;</button></span>`).join('');});}
+function addTag(key){const inp=tid('new-'+key);const val=(inp.value||'').trim();if(!val||opts[key].includes(val))return;opts[key].push(val);inp.value='';saveOpts();syncDrops();renderTags();}
+function removeTag(key,val){opts[key]=opts[key].filter(v=>v!==val);saveOpts();syncDrops();renderTags();}
+document.addEventListener('keydown',e=>{['finalStatus','filterByStatus','clientCategory','businessRelationship'].forEach(k=>{const inp=tid('new-'+k);if(inp&&document.activeElement===inp&&e.key==='Enter')addTag(k);});});
+
+function buildFilters(){
+  const cfgs=[{id:'fil-appKey',f:'Application Key',l:'All Keys'},{id:'fil-company',f:'Company Name',l:'All Companies'},{id:'fil-country',f:'Country',l:'All Countries'},{id:'fil-bizRel',f:'Business Relationship',l:'All Relationships'},{id:'fil-category',f:'Client Category',l:'All Categories'},{id:'fil-mode',f:'Mode',l:'All Modes'},{id:'fil-filterStatus',f:'Filter by Status',l:'All Filter Status'},{id:'fil-finalStatus',f:'Final Status',l:'All Final Status'}];
+  cfgs.forEach(({id,f,l})=>{const el=tid(id);if(!el)return;const c=el.value;const vs=[...new Set(records.map(r=>r[f]||'').filter(Boolean))].sort();el.innerHTML=`<option value="">${l}</option>`+vs.map(v=>`<option>${v}</option>`).join('');if(c&&vs.includes(c))el.value=c;});
+  const cn=[...new Set(records.map(r=>r['Country']||'').filter(Boolean))].sort();
+  const md=[...new Set(records.map(r=>r['Mode']||'').filter(Boolean))].sort();
+  ['pFC','pFM'].forEach((id,i)=>{const el=tid(id);if(!el)return;const list=i===0?cn:md;const lb=i===0?'All Countries':'All Modes';const c=el.value;el.innerHTML=`<option value="">${lb}</option>`+list.map(v=>`<option>${v}</option>`).join('');if(c)el.value=c;});
+}
+function clearFilters(){['fil-appKey','fil-company','fil-country','fil-bizRel','fil-category','fil-mode','fil-stage','fil-filterStatus','fil-finalStatus'].forEach(id=>{const el=tid(id);if(el){el.value='';el.classList.remove('on');}});tid('searchInput').value='';render();}
+function getFiltered(){
+  const q=(tid('searchInput').value||'').toLowerCase();
+  const f={ak:tid('fil-appKey').value,co:tid('fil-company').value,ct:tid('fil-country').value,br:tid('fil-bizRel').value,ca:tid('fil-category').value,mo:tid('fil-mode').value,st:tid('fil-stage').value,fs:tid('fil-filterStatus').value,fn:tid('fil-finalStatus').value};
+  const im={ak:'fil-appKey',co:'fil-company',ct:'fil-country',br:'fil-bizRel',ca:'fil-category',mo:'fil-mode',st:'fil-stage',fs:'fil-filterStatus',fn:'fil-finalStatus'};
+  Object.keys(f).forEach(k=>{const el=tid(im[k]);if(el)el.classList.toggle('on',!!f[k]);});
+  return records.filter(r=>{const match=!q||(r['Client Name']||'').toLowerCase().includes(q)||(r['Company Name']||'').toLowerCase().includes(q)||(r['Application Key']||'').toLowerCase().includes(q);const sg=stage(r).l;return match&&(!f.ak||r['Application Key']===f.ak)&&(!f.co||r['Company Name']===f.co)&&(!f.ct||r['Country']===f.ct)&&(!f.br||r['Business Relationship']===f.br)&&(!f.ca||r['Client Category']===f.ca)&&(!f.mo||r['Mode']===f.mo)&&(!f.st||sg.includes(f.st))&&(!f.fs||r['Filter by Status']===f.fs)&&(!f.fn||r['Final Status']===f.fn);});
+}
+
+function render(){
+  const all=records,data=getFiltered();
+  const sls=[['Not Started','s0'],['NDA Signed','s1'],['KYC Complete','s2'],['Term Sheet','s3'],['Agreement Signed','s4'],['Compliance Done','s5']];
+  const sbEl=document.getElementById('statsBar');
+  if(sbEl) sbEl.innerHTML=[{l:'Total',v:all.length},...sls.map(([s])=>({l:s,v:all.filter(r=>stage(r).l===s).length}))].map(s=>`<div class="sc"><div class="sc-l">${s.l}</div><div class="sc-v">${s.v}</div></div>`).join('');
+  if(tid('rc'))tid('rc').textContent=data.length<all.length?`Showing ${data.length} of ${all.length} records`:'';
+  if(!data.length){if(tid('tableWrap'))tid('tableWrap').innerHTML=`<div class="empty">No records match the current filters.</div>`;return;}
+  if(tid('tableWrap'))tid('tableWrap').innerHTML=`<div class="tw"><table>
+    <colgroup><col style="width:7%"><col style="width:9%"><col style="width:8%"><col style="width:5%"><col style="width:7%"><col style="width:5%"><col style="width:5%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:6%"><col style="width:8%"><col style="width:5%"><col style="width:5%"><col style="width:7%"></colgroup>
+    <thead><tr><th>Key</th><th>Client Name</th><th>Company</th><th>Country</th><th>Relationship</th><th>Category</th><th>Mode</th><th>NDA Signed</th><th>KYC Done</th><th>Term Sheet</th><th>Agreement</th><th>Compliance</th><th>System Demo</th><th>Pipeline Stage</th><th>Filter Status</th><th>Final Status</th><th>Actions</th></tr></thead>
+    <tbody>${data.map(r=>{const sg=stage(r);return`<tr>
+      <td><span class="kb">${r['Application Key']||'—'}</span></td>
+      <td style="font-weight:600" title="${r['Client Name']||''}">${r['Client Name']||'—'}</td>
+      <td title="${r['Company Name']||''}">${r['Company Name']||'—'}</td>
+      <td>${r['Country']||'—'}</td><td>${r['Business Relationship']||'—'}</td><td>${r['Client Category']||'—'}</td>
+      <td>${r['Mode']?`<span class="mb">${r['Mode']}</span>`:'—'}</td>
+      <td>${fd(r['NDA Signed Date'])}</td><td>${fd(r['KYC Completion Date'])}</td>
+      <td>${fd(r['Term Sheet Execution Date'])}</td><td>${fd(r['Agreement Execution Date'])}</td>
+      <td>${fd(r['Compliance Approval Date'])}</td>
+      <td>${r['System Demo Date']?`<span class="sysd-badge">${fd(r['System Demo Date'])}</span>`:'—'}</td>
+      <td><span class="sb ${sg.c}">${sg.l}</span></td>
+      <td>${r['Filter by Status']||'—'}</td><td>${r['Final Status']||'—'}</td>
+      <td><div class="ab">
+        <button class="btn" style="padding:3px 7px;font-size:10px" onclick="openModal(${r._rowIndex})">Edit</button>
+        <button class="btn btn-del" style="padding:3px 7px;font-size:10px" onclick="delRec(${r._rowIndex})">Del</button>
+      </div></td></tr>`}).join('')}</tbody></table></div>`;
+}
+
+function addPivotRow(){if(pRows.length>=4)return;pRows.push(ALL_PF.find(f=>!pRows.includes(f))||ALL_PF[0]);renderPivotRowControls();renderPivot();}
+function removePivotRow(i){if(pRows.length<=1)return;pRows.splice(i,1);renderPivotRowControls();renderPivot();}
+function pivotRowChanged(i,v){pRows[i]=v;renderPivot();}
+function renderPivotRowControls(){tid('pivotRowsWrap').innerHTML=pRows.map((f,i)=>`<div class="pri"><span class="prn">L${i+1}</span><select class="psel" onchange="pivotRowChanged(${i},this.value)">${ALL_PF.map(o=>`<option${o===f?' selected':''}>${o}</option>`).join('')}</select>${pRows.length>1?`<button class="bi r" onclick="removePivotRow(${i})">&#x2715;</button>`:''}</div>`).join('');}
+function renderPivot(){
+  const cf=tid('pivotCol').value,ff=tid('pFF').value,fb=tid('pFB').value,fc=tid('pFC').value,fm=tid('pFM').value;
+  let data=records.filter(r=>(!ff||r['Final Status']===ff)&&(!fb||r['Filter by Status']===fb)&&(!fc||r['Country']===fc)&&(!fm||r['Mode']===fm));
+  if(!data.length){tid('pivotTableWrap').innerHTML='<div style="color:var(--txt2);padding:1rem;font-size:13px">No data matching filters.</div>';return;}
+  const gv=(r,f)=>f==='Pipeline Stage'?stage(r).l:(r[f]||'(Blank)');
+  const cols=[...new Set(data.map(r=>gv(r,cf)))].sort();
+  function bg(data,depth){if(depth>=pRows.length)return null;const field=pRows[depth];const gs=[...new Set(data.map(r=>gv(r,field)))].sort();return{field,groups:gs.map(g=>({label:g,data:data.filter(r=>gv(r,field)===g),children:depth+1<pRows.length?bg(data.filter(r=>gv(r,field)===g),depth+1):null}))};}
+  const tree=bg(data,0);const ct=cols.map(()=>0);let grand=0;
+  function rg(group,depth){let rows='';group.groups.forEach(g=>{const cc=cols.map(c=>g.data.filter(r=>gv(r,cf)===c).length);const rt=cc.reduce((a,b)=>a+b,0);cc.forEach((n,i)=>ct[i]+=n);grand+=rt;rows+=`<tr><td style="padding-left:${8+depth*16}px;font-weight:${depth===0?'600':'400'};font-size:${12-depth}px;color:${depth===0?'var(--txt)':'var(--txt2)'}">${depth>0?'↳ ':''}${g.label} <span style="font-size:10px;opacity:.55">(${rt})</span></td>${cc.map(n=>`<td style="text-align:center">${n||''}</td>`).join('')}<td class="pt" style="text-align:center">${rt}</td></tr>`;if(g.children)rows+=rg(g.children,depth+1);});return rows;}
+  tid('pivotTableWrap').innerHTML=`<table><thead><tr><th style="min-width:160px">${pRows.join(' › ')}</th>${cols.map(c=>`<th style="text-align:center;white-space:nowrap">${c}</th>`).join('')}<th class="pt" style="text-align:center">Total</th></tr></thead><tbody>${rg(tree,0)}<tr style="border-top:2px solid var(--b2);background:var(--bg2)"><td class="pt">Grand Total</td>${ct.map(n=>`<td class="pt" style="text-align:center">${n}</td>`).join('')}<td class="pt" style="text-align:center">${grand}</td></tr></tbody></table>`;
+}
+
+function openModal(ri){
+  editRI=ri||null;const r=ri?records.find(x=>x._rowIndex===ri):null;
+  tid('modalTitle').textContent=ri?'Edit Application':'Add New Application';
+  syncDrops();
+  if(!r){tid('keyPreview').textContent=genKey();['f-clientName','f-companyName','f-country','f-bizRel','f-cat','f-mode','f-nda','f-kyc','f-ts','f-agr','f-com','f-sysd','f-fstat','f-fnal','f-rem'].forEach(id=>{const el=tid(id);if(el)el.value='';});}
+  else{
+    tid('keyPreview').textContent=r['Application Key']||'—';
+    tid('f-clientName').value=r['Client Name']||'';tid('f-companyName').value=r['Company Name']||'';
+    tid('f-country').value=r['Country']||'';tid('f-bizRel').value=r['Business Relationship']||'';
+    tid('f-cat').value=r['Client Category']||'';tid('f-mode').value=r['Mode']||'';
+    tid('f-nda').value=d2i(r['NDA Signed Date']);tid('f-kyc').value=d2i(r['KYC Completion Date']);
+    tid('f-ts').value=d2i(r['Term Sheet Execution Date']);tid('f-agr').value=d2i(r['Agreement Execution Date']);
+    tid('f-com').value=d2i(r['Compliance Approval Date']);tid('f-sysd').value=d2i(r['System Demo Date']);
+    tid('f-fstat').value=r['Filter by Status']||'';tid('f-fnal').value=r['Final Status']||'';
+    tid('f-rem').value=r['Ops Team Remarks']||'';
+  }
+  tid('appModal').classList.add('on');
+}
+function closeModal(){tid('appModal').classList.remove('on');editRI=null;}
+
+async function saveRecord(){
+  const cn=tid('f-clientName').value.trim();if(!cn){alert('Client Name is required.');return;}
+  const rec={'Application Key':tid('keyPreview').textContent,'Client Name':cn,'Company Name':tid('f-companyName').value.trim(),'Country':tid('f-country').value.trim(),'Business Relationship':tid('f-bizRel').value,'Client Category':tid('f-cat').value,'Mode':tid('f-mode').value,'NDA Signed Date':tid('f-nda').value,'KYC Completion Date':tid('f-kyc').value,'Term Sheet Execution Date':tid('f-ts').value,'Agreement Execution Date':tid('f-agr').value,'Compliance Approval Date':tid('f-com').value,'System Demo Date':tid('f-sysd').value,'Filter by Status':tid('f-fstat').value,'Final Status':tid('f-fnal').value,'Ops Team Remarks':tid('f-rem').value.trim()};
+  
+  const btn=tid('btnSave');btn.disabled=true;btn.innerHTML='<span class="sp sp2"></span>Saving...';showErr('');
+  try{const res=editRI?await api(null,{action:'update',id:editRI,record:rec}):await api(null,{action:'add',record:rec});if(res&&res.success){closeModal();await loadData();buildFilters();}else showErr('Save failed: '+(res&&res.error?res.error:'Unknown error. Check console.'));}
+  catch(e){showErr('Save failed: '+e.message);}
+  btn.disabled=false;btn.textContent='Save Application';
+}
+async function delRec(ri){if(!confirm('Delete this application?'))return;try{await api(null,{action:'delete',id:ri});await loadData();buildFilters();}catch(e){showErr('Delete failed.');}}
+
+function exportExcel(){
+  if(!records.length){alert('No records to export.');return;}
+  const ef=[...FIELDS,'Pipeline Stage'];
+  const rows=records.map(r=>{const o={};FIELDS.forEach(f=>{o[f]=DATE_FIELDS.includes(f)?fd(r[f]):r[f]||'';});o['Pipeline Stage']=stage(r).l;return o;});
+  const wb=XLSX.utils.book_new();const ws=XLSX.utils.json_to_sheet(rows,{header:ef});
+  ws['!cols']=ef.map((_,i)=>({wch:i===0?14:i===1||i===2?26:16}));
+  XLSX.utils.book_append_sheet(wb,ws,'Onboarding Applications');
+  XLSX.writeFile(wb,`OnboardingApp_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function switchTab(tab){
+  ['applications','pivot','settings'].forEach(t=>tid('tab-'+t).style.display=t===tab?'':'none');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['applications','pivot','settings'][i]===tab));
+  if(tab==='pivot'){renderPivotRowControls();renderPivot();}
+}
+tid('appModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+try{const s=localStorage.getItem('oa_url');if(s)tid('apiUrlInput').value=s;}catch(e){}
+renderPivotRowControls();
+</script>
+</body>
+</html>
